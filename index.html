@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toy Spinner</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f8ff;
+        }
+
+        h1 { color: #333; margin-bottom: 20px; }
+
+        .wheel-container {
+            position: relative;
+            width: 350px;
+            height: 350px;
+        }
+
+        /* The Arrow Indicator */
+        .arrow {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0; 
+            height: 0; 
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #ff4757;
+            z-index: 10;
+        }
+
+        canvas {
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1);
+        }
+
+        button {
+            margin-top: 30px;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            background-color: #2ed573;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+
+        button:active { transform: scale(0.95); }
+        button:disabled { background-color: #ccc; }
+
+        #result {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2f3542;
+            height: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Which toy tonight?</h1>
+    
+    <div class="wheel-container">
+        <div class="arrow"></div>
+        <canvas id="wheel" width="350" height="350"></canvas>
+    </div>
+
+    <div id="result"></div>
+    <button id="spinBtn">SPIN THE WHEEL!</button>
+
+    <script>
+        const canvas = document.getElementById('wheel');
+        const ctx = canvas.getContext('2d');
+        const spinBtn = document.getElementById('spinBtn');
+        const resultDisplay = document.getElementById('result');
+
+        // TO DO: Replace these with your actual toy names and image links!
+        const toys = [
+            { name: "Teddy", color: "#FF6B6B" },
+            { name: "Rexy", color: "#4ECDC4" },
+            { name: "Bluey", color: "#45B7D1" },
+            { name: "Dino", color: "#96CEB4" },
+            { name: "Robot", color: "#FFEEAD" },
+            { name: "Space Guy", color: "#D4A5A5" }
+        ];
+
+        const size = toys.length;
+        const arc = 2 * Math.PI / size;
+        let currentRotation = 0;
+
+        // Draw the wheel segments
+        function drawWheel() {
+            toys.forEach((toy, i) => {
+                const angle = i * arc;
+                ctx.beginPath();
+                ctx.fillStyle = toy.color;
+                ctx.moveTo(175, 175);
+                ctx.arc(175, 175, 175, angle, angle + arc);
+                ctx.lineTo(175, 175);
+                ctx.fill();
+
+                // Add text labels
+                ctx.save();
+                ctx.translate(175, 175);
+                ctx.rotate(angle + arc / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#333";
+                ctx.font = "bold 16px Arial";
+                ctx.fillText(toy.name, 160, 10);
+                ctx.restore();
+            });
+        }
+
+        function spin() {
+            spinBtn.disabled = true;
+            resultDisplay.innerText = "Spinning...";
+            
+            // Randomly spin between 5 and 10 full rotations plus extra
+            const extraDegrees = Math.floor(Math.random() * 360);
+            const totalRotation = (Math.floor(Math.random() * 5) + 5) * 360 + extraDegrees;
+            
+            currentRotation += totalRotation;
+            canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+            // Calculate which toy it landed on after the animation
+            setTimeout(() => {
+                spinBtn.disabled = false;
+                const actualDeg = currentRotation % 360;
+                // The arrow is at the top (-90 degrees from canvas start)
+                const correctedDeg = (360 - actualDeg + 270) % 360;
+                const index = Math.floor(correctedDeg / (360 / size));
+                resultDisplay.innerText = `Tonight: ${toys[index].name}!`;
+            }, 4000);
+        }
+
+        drawWheel();
+        spinBtn.addEventListener('click', spin);
+    </script>
+</body>
+</html>
