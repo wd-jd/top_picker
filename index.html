@@ -28,7 +28,7 @@
             cursor: pointer; background-color: #2ed573; color: white;
             border: none; border-radius: 50px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        #result { margin-top: 20px; font-size: 1.5rem; font-weight: bold; height: 2rem; }
+        #result { margin-top: 20px; font-size: 2rem; font-weight: bold; height: 2.5rem; color: #333; }
     </style>
 </head>
 <body>
@@ -49,7 +49,6 @@
         const spinBtn = document.getElementById('spinBtn');
         const resultDisplay = document.getElementById('result');
 
-        // --- ADD YOUR LINKS HERE ---
         const toys = [
               { name: "Santa", image: "https://i.postimg.cc/6pCgv1Lq/Christmas.jpg" },
               { name: "Fatygater", image: "https://i.postimg.cc/YjK82MPZ/EYu.jpg" },
@@ -62,6 +61,7 @@
               { name: "DoDo", image: "https://i.postimg.cc/vmNKFFGj/Xiong.jpg" },
               { name: "Fire-Eye", image: "https://i.postimg.cc/76JWqs63/Yanjing.jpg" }
         ];
+
         let loadedImages = 0;
         toys.forEach(toy => {
             const img = new Image();
@@ -70,7 +70,7 @@
                 loadedImages++;
                 if (loadedImages === toys.length) drawWheel();
             };
-            toy.imgElement = img; // Store the image object
+            toy.imgElement = img;
         });
 
         const size = toys.length;
@@ -81,8 +81,6 @@
             ctx.clearRect(0, 0, 400, 400);
             toys.forEach((toy, i) => {
                 const angle = i * arc;
-                
-                // Draw slice background
                 ctx.beginPath();
                 ctx.fillStyle = i % 2 === 0 ? "#ffffff" : "#f1f2f6";
                 ctx.moveTo(200, 200);
@@ -90,12 +88,9 @@
                 ctx.fill();
                 ctx.stroke();
 
-                // Draw Image
                 ctx.save();
                 ctx.translate(200, 200);
                 ctx.rotate(angle + arc / 2);
-                
-                // Clip image into a circle/box inside the slice
                 ctx.beginPath();
                 ctx.arc(120, 0, 35, 0, Math.PI * 2);
                 ctx.clip();
@@ -104,20 +99,39 @@
             });
         }
 
+        // --- NEW COUNTDOWN LOGIC ---
+        function startCountdown(callback) {
+            let count = 3;
+            resultDisplay.innerText = count;
+            
+            const timer = setInterval(() => {
+                count--;
+                if (count >= 0) {
+                    resultDisplay.innerText = count;
+                } else {
+                    clearInterval(timer);
+                    callback(); // This runs when the spin finishes (after 4s total)
+                }
+            }, 1000); // Update every 1 second
+        }
+
         function spin() {
             spinBtn.disabled = true;
-            resultDisplay.innerText = "Spinning...";
+            
+            // 1. Calculate and start the animation
             const totalRotation = (Math.floor(Math.random() * 5) + 5) * 360 + Math.floor(Math.random() * 360);
             currentRotation += totalRotation;
             canvas.style.transform = `rotate(${currentRotation}deg)`;
 
-            setTimeout(() => {
+            // 2. Start the visual countdown
+            startCountdown(() => {
+                // 3. This runs after 4 seconds (when countdown hits 0)
                 spinBtn.disabled = false;
                 const actualDeg = currentRotation % 360;
                 const correctedDeg = (360 - actualDeg + 270) % 360;
                 const index = Math.floor(correctedDeg / (360 / size));
                 resultDisplay.innerText = `Tonight: ${toys[index].name}!`;
-            }, 4000);
+            });
         }
 
         spinBtn.addEventListener('click', spin);
