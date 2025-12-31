@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toy Spinner</title>
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    
     <style>
         body {
-            font-family: 'Segoe UI', sans-serif;
+            /* Applied the new font to the whole page */
+            font-family: 'ZCOOL KuaiLe', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -24,11 +27,20 @@
         }
         canvas { border-radius: 50%; transition: transform 4s cubic-bezier(0.15, 0, 0.15, 1); }
         button {
-            margin-top: 30px; padding: 15px 40px; font-size: 1.2rem;
+            margin-top: 30px; padding: 15px 40px; 
+            font-family: 'ZCOOL KuaiLe', sans-serif; /* Applied to button */
+            font-size: 1.2rem;
             cursor: pointer; background-color: #2ed573; color: white;
             border: none; border-radius: 50px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        #result { margin-top: 20px; font-size: 2rem; font-weight: bold; height: 2.5rem; color: #333; }
+        #result { 
+            margin-top: 20px; 
+            font-size: 2.5rem; /* Made slightly larger for the fun font */
+            font-weight: bold; 
+            height: 3rem; 
+            color: #333; 
+        }
+        h1 { color: #2f3542; }
     </style>
 </head>
 <body>
@@ -99,33 +111,27 @@
             });
         }
 
-        // --- NEW COUNTDOWN LOGIC ---
         function startCountdown(callback) {
             let count = 3;
             resultDisplay.innerText = count;
-            
             const timer = setInterval(() => {
                 count--;
                 if (count >= 0) {
                     resultDisplay.innerText = count;
                 } else {
                     clearInterval(timer);
-                    callback(); // This runs when the spin finishes (after 4s total)
+                    callback();
                 }
-            }, 1000); // Update every 1 second
+            }, 1000);
         }
 
         function spin() {
             spinBtn.disabled = true;
-            
-            // 1. Calculate and start the animation
             const totalRotation = (Math.floor(Math.random() * 5) + 5) * 360 + Math.floor(Math.random() * 360);
             currentRotation += totalRotation;
             canvas.style.transform = `rotate(${currentRotation}deg)`;
 
-            // 2. Start the visual countdown
             startCountdown(() => {
-                // 3. This runs after 4 seconds (when countdown hits 0)
                 spinBtn.disabled = false;
                 const actualDeg = currentRotation % 360;
                 const correctedDeg = (360 - actualDeg + 270) % 360;
